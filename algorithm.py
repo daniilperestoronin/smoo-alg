@@ -4,6 +4,8 @@ Algorithm for solving stochastic multi-objective optimization problem
 author Perestoronin Daniil
 """
 
+import math
+
 z1 = [
     [0.1, 0.4, 0.5, 0.8, 1.0],
     [0.3, 0.5, 0.6, 0.8, 0.9],
@@ -46,12 +48,39 @@ def normalize(m, k=1):
     return norm_m
 
 
+def removal_uncertainties(z, lam):
+    rows = len(z)
+    cols = len(lam)
+    unc_m = [[0 for x in range(cols)] for y in range(rows)]
+
+    def z1(xs):
+        return sum(xs)
+
+    def z2(xs):
+        return math.sqrt(sum(xs))
+
+    for i in range(0, rows):
+        for j in range(0, cols):
+            unc_m[i][j] = (1 - lam[j]) * z1(z[i]) + lam[j] * z2(z[i])
+    return unc_m
+
+
 print_matrix(z1)
 print()
 print_matrix(z2)
 print()
 
-print_matrix(normalize(z1, 10))
+z1n = normalize(z1, 10)
+z2n = normalize(z2, 10)
+print_matrix(z1n)
 print()
-print_matrix(normalize(z2, 10))
+print_matrix(z2n)
+print()
+
+lam = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+z1u = removal_uncertainties(z1n, lam)
+z2u = removal_uncertainties(z2n, lam)
+print_matrix(z1u)
+print()
+print_matrix(z2u)
 print()
