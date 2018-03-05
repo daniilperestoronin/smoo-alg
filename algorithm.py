@@ -5,6 +5,8 @@ author Perestoronin Daniil
 """
 
 import math
+import copy
+import texttable
 
 z1 = [
     [0.1, 0.4, 0.5, 0.8, 1.0],
@@ -21,11 +23,24 @@ z2 = [
 ]
 
 
-def print_matrix(m):
-    for row in m:
-        for el in row:
-            print(el, end=' ')
-        print()
+def print_matrix(m, col_name='', row_name=''):
+    matrix = copy.deepcopy(m)
+    rows = len(matrix)
+    cols = len(matrix[0])
+    head = [col_name + str(x + 1) for x in range(cols)]
+    head.insert(0, ' ')
+    cols_type = ['f' for x in range(cols)]
+    cols_type.insert(0, 't')
+    table = texttable.Texttable()
+    table.set_cols_dtype(cols_type)
+    table.set_cols_align(['l' for x in range(cols+1)])
+    table.set_precision(1)
+    table.header(head)
+    for i in range(0, rows):
+        row = matrix[i]
+        row.insert(0, row_name + str(i+1))
+        table.add_row(row)
+    print(table.draw())
 
 
 def max_element(m):
@@ -64,23 +79,32 @@ def removal_uncertainties(z, lam):
             unc_m[i][j] = (1 - lam[j]) * z1(z[i]) + lam[j] * z2(z[i])
     return unc_m
 
-
-print_matrix(z1)
 print()
-print_matrix(z2)
+print(' VARIABLES ')
+print()
+print_matrix(z1, 's', 'x')
+print()
+print_matrix(z2, 's', 'x')
 print()
 
+print(' NORMALIZED VARIABLES ')
+print()
 z1n = normalize(z1, 10)
 z2n = normalize(z2, 10)
-print_matrix(z1n)
+print_matrix(z1n, 'l', 'x')
 print()
-print_matrix(z2n)
+print_matrix(z2n, 'l', 'x')
 print()
 
+
+print(' REMOVAL UNCERTAINTIES ')
+print()
 lam = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 z1u = removal_uncertainties(z1n, lam)
 z2u = removal_uncertainties(z2n, lam)
-print_matrix(z1u)
+print_matrix(z1u, 'l', 'x')
 print()
-print_matrix(z2u)
+print_matrix(z2u, 'l', 'x')
 print()
+
+
