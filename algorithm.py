@@ -4,8 +4,9 @@ Algorithm for solving stochastic multi-objective optimization problem
 author Perestoronin Daniil
 """
 
-import math
 import copy
+import math
+
 import texttable
 
 z1 = [
@@ -79,6 +80,25 @@ def removal_uncertainties(z, lam):
             unc_m[i][j] = (1 - lam[j]) * z1(z[i]) + lam[j] * z2(z[i])
     return unc_m
 
+
+def optimality_principle(criterions):
+    cr_n = len(criterions)
+    rows = len(criterions[0])
+    cols = len(criterions[0][0])
+    for i in range(0, cols):
+        max_cr = None
+        max_c = 0
+        for j in range(0, rows):
+            cr_sum = 0
+            for cr in range(0, cr_n):
+                cr_sum = cr_sum + criterions[cr][j][i]
+            if max_cr is None or max_cr <= cr_sum:
+                max_cr = cr_sum
+                max_c = j
+        print(max_c + 1, end=' ')
+    print()
+
+
 print()
 print(' VARIABLES ')
 print()
@@ -86,7 +106,6 @@ print_matrix(z1, 's', 'x')
 print()
 print_matrix(z2, 's', 'x')
 print()
-
 print(' NORMALIZED VARIABLES ')
 print()
 z1n = normalize(z1, 10)
@@ -95,8 +114,6 @@ print_matrix(z1n, 'l', 'x')
 print()
 print_matrix(z2n, 'l', 'x')
 print()
-
-
 print(' REMOVAL UNCERTAINTIES ')
 print()
 lam = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
@@ -107,4 +124,5 @@ print()
 print_matrix(z2u, 'l', 'x')
 print()
 
-
+criterions = [z1u, z2u]
+optimality_principle(criterions)
