@@ -24,7 +24,7 @@ criterion = [
     ]
 ]
 
-lam = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+lambd = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 
 
 def print_matrix(m, col_name='', row_name=''):
@@ -113,7 +113,7 @@ def optimality_principle(unc_crt):
     return opt_dec, opt_dic_val
 
 
-def calculate_model(crt):
+def calculate_model(crt, lam):
     print(' VARIABLES ')
     print()
     for z in crt:
@@ -148,4 +148,4 @@ def calculate_model(crt):
     print_matrix(opt_dic_val, 'l', 'max')
 
 
-calculate_model(criterion)
+calculate_model(criterion, lambd)
