@@ -9,19 +9,22 @@ import math
 
 import texttable
 
-z1 = [
-    [0.1, 0.4, 0.5, 0.8, 1.0],
-    [0.3, 0.5, 0.6, 0.8, 0.9],
-    [0.1, 0.3, 0.5, 1.0, 1.1],
-    [0.2, 0.3, 0.4, 1.0, 1.2]
+criterion = [
+    [
+        [0.1, 0.4, 0.5, 0.8, 1.0],
+        [0.3, 0.5, 0.6, 0.8, 0.9],
+        [0.1, 0.3, 0.5, 1.0, 1.1],
+        [0.2, 0.3, 0.4, 1.0, 1.2]
+    ],
+    [
+        [3, 15, 25, 40, 50],
+        [5, 10, 25, 35, 40],
+        [5, 15, 25, 30, 60],
+        [10, 15, 20, 35, 50]
+    ]
 ]
 
-z2 = [
-    [3, 15, 25, 40, 50],
-    [5, 10, 25, 35, 40],
-    [5, 15, 25, 30, 60],
-    [10, 15, 20, 35, 50]
-]
+lam = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 
 
 def print_matrix(m, col_name='', row_name=''):
@@ -38,7 +41,7 @@ def print_matrix(m, col_name='', row_name=''):
     cols_type.insert(0, 't')
     table = texttable.Texttable()
     table.set_cols_dtype(cols_type)
-    table.set_cols_align(['l' for x in range(cols+1)])
+    table.set_cols_align(['l' for x in range(cols + 1)])
     table.set_precision(1)
     table.header(head)
     for i in range(0, rows):
@@ -89,10 +92,10 @@ def removal_uncertainties(z, lam):
     return unc_m
 
 
-def optimality_principle(criterions):
-    cr_n = len(criterions)
-    rows = len(criterions[0])
-    cols = len(criterions[0][0])
+def optimality_principle(unc_crt):
+    cr_n = len(unc_crt)
+    rows = len(unc_crt[0])
+    cols = len(unc_crt[0][0])
     opt_dec = []
     opt_dic_val = []
     for i in range(0, cols):
@@ -101,7 +104,7 @@ def optimality_principle(criterions):
         for j in range(0, rows):
             cr_sum = 0
             for cr in range(0, cr_n):
-                cr_sum = cr_sum + criterions[cr][j][i]
+                cr_sum = cr_sum + unc_crt[cr][j][i]
             if max_cr is None or max_cr <= cr_sum:
                 max_cr = cr_sum
                 max_c = j
@@ -110,35 +113,39 @@ def optimality_principle(criterions):
     return opt_dec, opt_dic_val
 
 
-print()
-print(' VARIABLES ')
-print()
-print_matrix(z1, 's', 'x')
-print()
-print_matrix(z2, 's', 'x')
-print()
-print(' NORMALIZED VARIABLES ')
-print()
-z1n = normalize(z1, 10)
-z2n = normalize(z2, 10)
-print_matrix(z1n, 'l', 'x')
-print()
-print_matrix(z2n, 'l', 'x')
-print()
-print(' REMOVAL UNCERTAINTIES ')
-print()
-lam = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-z1u = removal_uncertainties(z1n, lam)
-z2u = removal_uncertainties(z2n, lam)
-print_matrix(z1u, 'l', 'x')
-print()
-print_matrix(z2u, 'l', 'x')
-print()
+def calculate_model(crt):
+    print(' VARIABLES ')
+    print()
+    for z in crt:
+        print_matrix(z, 's', 'x')
+        print()
+    print()
+    print(' NORMALIZED VARIABLES ')
+    print()
 
-print()
-print(' DECISION ')
-print()
-criterions = [z1u, z2u]
-opt_dec, opt_dic_val = optimality_principle(criterions)
-print_matrix(opt_dec, 'l', 'x')
-print_matrix(opt_dic_val, 'l', 'max')
+    crt_norm = []
+    for z in crt:
+        z_n = normalize(z, 10)
+        crt_norm.append(z_n)
+        print_matrix(z_n, 'l', 'x')
+        print()
+    print()
+    print(' REMOVAL UNCERTAINTIES ')
+    print()
+
+    crt_unc = []
+    for z in crt_norm:
+        z_u = removal_uncertainties(z, lam)
+        crt_unc.append(z_u)
+        print_matrix(z_u, 'l', 'x')
+        print()
+
+    print()
+    print(' DECISION ')
+    print()
+    opt_dec, opt_dic_val = optimality_principle(crt_unc)
+    print_matrix(opt_dec, 'l', 'x')
+    print_matrix(opt_dic_val, 'l', 'max')
+
+
+calculate_model(criterion)
