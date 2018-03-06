@@ -26,11 +26,15 @@ z2 = [
 
 def print_matrix(m, col_name='', row_name=''):
     matrix = copy.deepcopy(m)
-    rows = len(matrix)
-    cols = len(matrix[0])
+    if isinstance(matrix[0], list):
+        rows = len(matrix)
+        cols = len(matrix[0])
+    else:
+        rows = 1
+        cols = len(matrix)
     head = [col_name + str(x + 1) for x in range(cols)]
     head.insert(0, ' ')
-    cols_type = ['f' for x in range(cols)]
+    cols_type = ['a' for x in range(cols)]
     cols_type.insert(0, 't')
     table = texttable.Texttable()
     table.set_cols_dtype(cols_type)
@@ -38,8 +42,12 @@ def print_matrix(m, col_name='', row_name=''):
     table.set_precision(1)
     table.header(head)
     for i in range(0, rows):
-        row = matrix[i]
-        row.insert(0, row_name + str(i+1))
+        if isinstance(matrix[0], list):
+            row = matrix[i]
+            row.insert(0, row_name + str(i + 1))
+        else:
+            row = matrix
+            row.insert(0, row_name)
         table.add_row(row)
     print(table.draw())
 
@@ -85,6 +93,8 @@ def optimality_principle(criterions):
     cr_n = len(criterions)
     rows = len(criterions[0])
     cols = len(criterions[0][0])
+    opt_dec = []
+    opt_dic_val = []
     for i in range(0, cols):
         max_cr = None
         max_c = 0
@@ -95,8 +105,9 @@ def optimality_principle(criterions):
             if max_cr is None or max_cr <= cr_sum:
                 max_cr = cr_sum
                 max_c = j
-        print(max_c + 1, end=' ')
-    print()
+        opt_dic_val.append(max_cr)
+        opt_dec.append(max_c)
+    return opt_dec, opt_dic_val
 
 
 print()
@@ -124,5 +135,10 @@ print()
 print_matrix(z2u, 'l', 'x')
 print()
 
+print()
+print(' DECISION ')
+print()
 criterions = [z1u, z2u]
-optimality_principle(criterions)
+opt_dec, opt_dic_val = optimality_principle(criterions)
+print_matrix(opt_dec, 'l', 'x')
+print_matrix(opt_dic_val, 'l', 'max')
