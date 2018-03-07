@@ -140,6 +140,41 @@ def multipl_conv_opt_pr(unc_crt):
     return opt_dec, opt_dic_val
 
 
+def ideal_point_opt_pr(unc_crt):
+    cr_n = len(unc_crt)
+    rows = len(unc_crt[0])
+    cols = len(unc_crt[0][0])
+
+    def ideal_point():
+        ideal_p = [[0 for x in range(cols)] for y in range(cr_n)]
+        for i in range(0, cr_n):
+            for j in range(0, cols):
+                p_max = unc_crt[i][0][j]
+                for k in range(1, rows):
+                    if p_max < unc_crt[i][k][j]:
+                        p_max = unc_crt[i][k][j]
+                ideal_p[i][j] = p_max
+        return ideal_p
+
+    i_point = ideal_point()
+
+    opt_dec = []
+    opt_dic_val = []
+    for i in range(0, cols):
+        max_cr = None
+        max_c = 0
+        for j in range(0, rows):
+            cr_i_p = 0
+            for cr in range(0, cr_n):
+                cr_i_p = cr_i_p * unc_crt[cr][j][i]
+            if max_cr is None or max_cr <= cr_i_p:
+                max_cr = cr_i_p
+                max_c = j
+        opt_dic_val.append(max_cr)
+        opt_dec.append(max_c)
+    return opt_dec, opt_dic_val
+
+
 def calculate_model(crt, lam):
     print(' VARIABLES ')
     print()
@@ -178,6 +213,12 @@ def calculate_model(crt, lam):
 
     print(' multiplicative convolution :')
     opt_dec, opt_dic_val = multipl_conv_opt_pr(crt_unc)
+    print_matrix(opt_dec, 'l', 'x')
+    print_matrix(opt_dic_val, 'l', 'max')
+    print()
+
+    print(' ideal point convolution :')
+    opt_dec, opt_dic_val = ideal_point_opt_pr(crt_unc)
     print_matrix(opt_dec, 'l', 'x')
     print_matrix(opt_dic_val, 'l', 'max')
     print()
