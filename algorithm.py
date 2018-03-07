@@ -98,7 +98,7 @@ def removal_uncertainties(z, p, lam):
     return unc_m
 
 
-def optimality_principle(unc_crt):
+def lin_conv_opt_pr(unc_crt):
     cr_n = len(unc_crt)
     rows = len(unc_crt[0])
     cols = len(unc_crt[0][0])
@@ -113,6 +113,27 @@ def optimality_principle(unc_crt):
                 cr_sum = cr_sum + unc_crt[cr][j][i]
             if max_cr is None or max_cr <= cr_sum:
                 max_cr = cr_sum
+                max_c = j
+        opt_dic_val.append(max_cr)
+        opt_dec.append(max_c)
+    return opt_dec, opt_dic_val
+
+
+def multipl_conv_opt_pr(unc_crt):
+    cr_n = len(unc_crt)
+    rows = len(unc_crt[0])
+    cols = len(unc_crt[0][0])
+    opt_dec = []
+    opt_dic_val = []
+    for i in range(0, cols):
+        max_cr = None
+        max_c = 0
+        for j in range(0, rows):
+            cr_mult = 1
+            for cr in range(0, cr_n):
+                cr_mult = cr_mult * unc_crt[cr][j][i]
+            if max_cr is None or max_cr <= cr_mult:
+                max_cr = cr_mult
                 max_c = j
         opt_dic_val.append(max_cr)
         opt_dec.append(max_c)
@@ -149,9 +170,17 @@ def calculate_model(crt, lam):
     print()
     print(' DECISION ')
     print()
-    opt_dec, opt_dic_val = optimality_principle(crt_unc)
+    print(' linear convolution :')
+    opt_dec, opt_dic_val = lin_conv_opt_pr(crt_unc)
     print_matrix(opt_dec, 'l', 'x')
     print_matrix(opt_dic_val, 'l', 'max')
+    print()
+
+    print(' multiplicative convolution :')
+    opt_dec, opt_dic_val = multipl_conv_opt_pr(crt_unc)
+    print_matrix(opt_dec, 'l', 'x')
+    print_matrix(opt_dic_val, 'l', 'max')
+    print()
 
 
 calculate_model(criterion, lambd)
