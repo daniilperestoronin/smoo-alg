@@ -11,19 +11,21 @@ import texttable
 
 criterion = [
     [
+        # z1
         [0.1, 0.4, 0.5, 0.8, 1.0],
         [0.3, 0.5, 0.6, 0.8, 0.9],
         [0.1, 0.3, 0.5, 1.0, 1.1],
         [0.2, 0.3, 0.4, 1.0, 1.2]
     ],
     [
-        [3, 15, 25, 40, 50],
-        [5, 10, 25, 35, 40],
-        [5, 15, 25, 30, 60],
-        [10, 15, 20, 35, 50]
+        # z1
+        [3.3, 15.3, 25.3, 40, 50],
+        [5.3, 10.3, 25.3, 35, 40],
+        [5.3, 15.3, 25, 30, 60],
+        [10.3, 15, 20, 35, 50]
     ]
 ]
-
+prob = [0.2, 0.2, 0.4, 0.15, 0.05]
 lambd = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 
 
@@ -75,16 +77,20 @@ def normalize(m, k=1):
     return norm_m
 
 
-def removal_uncertainties(z, lam):
+def removal_uncertainties(z, p, lam):
     rows = len(z)
     cols = len(lam)
     unc_m = [[0 for x in range(cols)] for y in range(rows)]
 
-    def z1(xs):
-        return sum(xs)
+    def z1(x):
+        xp = [a * b for a, b in zip(x, p)]
+        return sum(xp)
 
-    def z2(xs):
-        return math.sqrt(sum(xs))
+    def z2(x):
+        v = []
+        for j in range(0, len(x)):
+            v.append(((x[j] - z1(x)) ** 2) * p[j])
+        return math.sqrt(sum(v))
 
     for i in range(0, rows):
         for j in range(0, cols):
@@ -135,7 +141,7 @@ def calculate_model(crt, lam):
 
     crt_unc = []
     for z in crt_norm:
-        z_u = removal_uncertainties(z, lam)
+        z_u = removal_uncertainties(z, prob, lam)
         crt_unc.append(z_u)
         print_matrix(z_u, 'l', 'x')
         print()
