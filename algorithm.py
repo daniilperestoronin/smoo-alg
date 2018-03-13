@@ -175,7 +175,7 @@ def ideal_point_opt_pr(unc_crt):
     return opt_dec, opt_dic_val
 
 
-def calculate_model(crt, lam):
+def calculate_model(crt, prb, lam):
     print(' VARIABLES ')
     print()
     for z in crt:
@@ -197,7 +197,7 @@ def calculate_model(crt, lam):
 
     crt_unc = []
     for z in crt_norm:
-        z_u = removal_uncertainties(z, prob, lam)
+        z_u = removal_uncertainties(z, prb, lam)
         crt_unc.append(z_u)
         print_matrix(z_u, 'l', 'x')
         print()
@@ -224,4 +224,53 @@ def calculate_model(crt, lam):
     print()
 
 
-calculate_model(criterion, lambd)
+def study_stability_solution(crt, prb, lam, eps, opt_pr):
+    def get_perturbed_data(data):
+        crt_copy = copy.deepcopy(data)
+        cr_n = len(crt_copy)
+        rows = len(crt_copy[0])
+        cols = len(crt_copy[0][0])
+        for i in range(0, cr_n):
+            for j in range(0, cols):
+                for k in range(1, rows):
+                    crt_copy[i][k][j] = crt_copy[i][k][j] - eps
+        return crt_copy
+
+    p_crt = get_perturbed_data(crt)
+
+    crt_norm = []
+    for z in p_crt:
+        z_n = normalize(z, 10)
+        crt_norm.append(z_n)
+
+    crt_unc = []
+    for z in crt_norm:
+        z_u = removal_uncertainties(z, prb, lam)
+        crt_unc.append(z_u)
+
+    if opt_pr == 'linear convolution':
+        return lin_conv_opt_pr(crt_unc)
+
+    if opt_pr == 'multiplicative convolution':
+        return multipl_conv_opt_pr(crt_unc)
+
+    if opt_pr == 'ideal point convolution':
+        return ideal_point_opt_pr(crt_unc)
+
+
+calculate_model(criterion, prob, lambd)
+
+for i in range(0, 10):
+    opt_dec, opt_dic_val = study_stability_solution(criterion, prob, lambd, 0.01 * i, 'linear convolution')
+    print(0.01 * i, end=' = ')
+    print(opt_dec)
+print()
+for i in range(0, 10):
+    opt_dec, opt_dic_val = study_stability_solution(criterion, prob, lambd, 0.01 * i, 'multiplicative convolution')
+    print(0.01 * i, end=' = ')
+    print(opt_dec)
+print()
+for i in range(0, 10):
+    opt_dec, opt_dic_val = study_stability_solution(criterion, prob, lambd, 0.01 * i, 'ideal point convolution')
+    print(0.01 * i, end=' = ')
+    print(opt_dec)
