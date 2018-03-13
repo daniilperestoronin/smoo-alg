@@ -93,6 +93,23 @@ def print_matrix(m, col_name='', row_name=''):
     print(table.draw())
 
 
+def print_for_latex(m):
+    rows = len(m)
+    if isinstance(m[0], list):
+        cols = len(m[0])
+    else:
+        cols = 1
+    if cols > 1:
+        for i in range(0, rows):
+            for j in range(0, cols):
+                print(round(m[i][j], 2), end=' & ' if j != cols - 1 else '\hline')
+            print()
+    else:
+        for i in range(0, rows):
+            print(round(m[i], 2), end=' & ' if i != rows - 1 else '\hline')
+        print()
+
+
 def max_element(m):
     max_el = None
     for row in m:
@@ -215,7 +232,9 @@ def calculate_model(crt, prb, lam):
     print(' VARIABLES ')
     print()
     for z in crt:
-        print_matrix(z, 's', 'x')
+        print_matrix(z, 'w', 'x')
+        print()
+        print_for_latex(z)
         print()
     print()
     print(' NORMALIZED VARIABLES ')
@@ -260,6 +279,55 @@ def calculate_model(crt, prb, lam):
     print()
 
 
+def print_calc_for_latex(crt, prb, lam):
+    print(' VARIABLES ')
+    print()
+    for z in crt:
+        print_for_latex(z)
+        print()
+    print()
+    print(' NORMALIZED VARIABLES ')
+    print()
+
+    crt_norm = []
+    for z in crt:
+        z_n = normalize(z, 10)
+        crt_norm.append(z_n)
+        print_for_latex(z_n)
+        print()
+    print()
+    print(' REMOVAL UNCERTAINTIES ')
+    print()
+
+    crt_unc = []
+    for z in crt_norm:
+        z_u = removal_uncertainties(z, prb, lam)
+        crt_unc.append(z_u)
+        print_for_latex(z_u)
+        print()
+
+    print()
+    print(' DECISION ')
+    print()
+    print(' linear convolution :')
+    opt_dec, opt_dic_val = lin_conv_opt_pr(crt_unc)
+    print_for_latex(opt_dec)
+    print_for_latex(opt_dic_val)
+    print()
+
+    print(' multiplicative convolution :')
+    opt_dec, opt_dic_val = multipl_conv_opt_pr(crt_unc)
+    print_for_latex(opt_dec)
+    print_for_latex(opt_dic_val)
+    print()
+
+    print(' ideal point convolution :')
+    opt_dec, opt_dic_val = ideal_point_opt_pr(crt_unc)
+    print_for_latex(opt_dec)
+    print_for_latex(opt_dic_val)
+    print()
+
+
 def study_stability_solution(crt, prb, lam, eps, opt_pr):
     def get_perturbed_data(data):
         crt_copy = copy.deepcopy(data)
@@ -294,19 +362,20 @@ def study_stability_solution(crt, prb, lam, eps, opt_pr):
         return ideal_point_opt_pr(crt_unc)
 
 
-calculate_model(criterion, prob, lambd)
+# calculate_model(criterion, prob, lambd)
+print_calc_for_latex(criterion, prob, lambd)
 
 for i in range(0, 10):
-    opt_dec, opt_dic_val = study_stability_solution(criterion, prob, lambd, 0.1 * i, 'linear convolution')
+    opt_dec, opt_dic_val = study_stability_solution(criterion, prob, lambd, 0.3 * i, 'linear convolution')
     print(0.01 * i, end=' = ')
     print(opt_dec)
 print()
 for i in range(0, 10):
-    opt_dec, opt_dic_val = study_stability_solution(criterion, prob, lambd, 0.1 * i, 'multiplicative convolution')
+    opt_dec, opt_dic_val = study_stability_solution(criterion, prob, lambd, 0.2 * i, 'multiplicative convolution')
     print(0.01 * i, end=' = ')
     print(opt_dec)
 print()
 for i in range(0, 10):
-    opt_dec, opt_dic_val = study_stability_solution(criterion, prob, lambd, 0.1 * i, 'ideal point convolution')
+    opt_dec, opt_dic_val = study_stability_solution(criterion, prob, lambd, 0.01 * i, 'ideal point convolution')
     print(0.01 * i, end=' = ')
     print(opt_dec)
