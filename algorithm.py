@@ -161,17 +161,17 @@ def ideal_point_opt_pr(unc_crt):
     opt_dec = []
     opt_dic_val = []
     for i in range(0, cols):
-        max_cr = None
-        max_c = 0
+        min_cr = None
+        min_c = 0
         for j in range(0, rows):
             cr_i_p = 0
             for cr in range(0, cr_n):
-                cr_i_p = cr_i_p * unc_crt[cr][j][i]
-            if max_cr is None or max_cr <= cr_i_p:
-                max_cr = cr_i_p
-                max_c = j
-        opt_dic_val.append(max_cr)
-        opt_dec.append(max_c)
+                cr_i_p = cr_i_p + (i_point[cr][i] - unc_crt[cr][j][i]) ** 2
+            if min_cr is None or min_cr > cr_i_p:
+                min_cr = cr_i_p
+                min_c = j
+        opt_dic_val.append(min_cr)
+        opt_dec.append(min_c)
     return opt_dec, opt_dic_val
 
 
@@ -220,7 +220,7 @@ def calculate_model(crt, lam):
     print(' ideal point convolution :')
     opt_dec, opt_dic_val = ideal_point_opt_pr(crt_unc)
     print_matrix(opt_dec, 'l', 'x')
-    print_matrix(opt_dic_val, 'l', 'max')
+    print_matrix(opt_dic_val, 'l', 'min')
     print()
 
 
