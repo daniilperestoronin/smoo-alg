@@ -6,23 +6,59 @@ author Perestoronin Daniil
 
 import copy
 import math
+import random
 
 import texttable
 
 criterion = [
     [
-        # z1
-        [0.1, 0.4, 0.5, 0.8, 1.0],
-        [0.3, 0.5, 0.6, 0.8, 0.9],
-        [0.1, 0.3, 0.5, 1.0, 1.1],
-        [0.2, 0.3, 0.4, 1.0, 1.2]
+        # f(x,w|1)
+        [10, 8, 8, 6, 5],
+        [7, 7, 6, 5, 2],
+        [9, 9, 9, 9, 8],
+        [6, 5, 5, 3, 2]
     ],
     [
-        # z1
-        [3.3, 15.3, 25.3, 40, 50],
-        [5.3, 10.3, 25.3, 35, 40],
-        [5.3, 15.3, 25, 30, 60],
-        [10.3, 15, 20, 35, 50]
+        # f(x,w|2)
+        [99.6, 99.2, 99.0, 98.9, 96.9],
+        [99.9, 99.0, 97.9, 96.9, 93.5],
+        [99.9, 99.9, 99.0, 98.9, 97.9],
+        [99.9, 99.5, 98.9, 95.4, 93.3]
+    ],
+    [
+        # f(x,w|3)
+        [98.4, 98.0, 97.3, 94.1, 91.0],
+        [97.5, 95.1, 92.5, 90.4, 88.2],
+        [98.3, 97.3, 96.0, 95.5, 94.1],
+        [95.3, 94.2, 93.5, 92.1, 91.2]
+    ],
+    [
+        # f(x,w|4)
+        [8, 8, 7, 7, 6],
+        [9, 9, 9, 8, 6],
+        [10, 10, 10, 10, 10],
+        [10, 10, 9, 8, 7]
+    ],
+    [
+        # f(x,w|5)
+        [7, 5, 5, 4, 3],
+        [7, 7, 7, 7, 6],
+        [10, 9, 8, 8, 7],
+        [9, 7, 6, 6, 6]
+    ],
+    [
+        # f(x,w|6)
+        [8, 8, 8, 8, 8],
+        [10, 10, 10, 6, 5],
+        [10, 9, 8, 6, 5],
+        [10, 9, 9, 7, 6]
+    ],
+    [
+        # f(x|7)
+        [-3500000, -3800000, -4500000, -5000000, -5700000],
+        [-4800000, -4800000, -4900000, -4950000, -5000000],
+        [-4500000, -4600000, -4700000, -5450000, -6000000],
+        [-4890000, -5010000, -5150000, -5205140, -5505140]
     ]
 ]
 prob = [0.2, 0.2, 0.4, 0.15, 0.05]
@@ -113,7 +149,7 @@ def lin_conv_opt_pr(unc_crt):
                 cr_sum = cr_sum + unc_crt[cr][j][i]
             if max_cr is None or max_cr <= cr_sum:
                 max_cr = cr_sum
-                max_c = j
+                max_c = j + 1
         opt_dic_val.append(max_cr)
         opt_dec.append(max_c)
     return opt_dec, opt_dic_val
@@ -134,7 +170,7 @@ def multipl_conv_opt_pr(unc_crt):
                 cr_mult = cr_mult * unc_crt[cr][j][i]
             if max_cr is None or max_cr <= cr_mult:
                 max_cr = cr_mult
-                max_c = j
+                max_c = j + 1
         opt_dic_val.append(max_cr)
         opt_dec.append(max_c)
     return opt_dec, opt_dic_val
@@ -169,7 +205,7 @@ def ideal_point_opt_pr(unc_crt):
                 cr_i_p = cr_i_p + (i_point[cr][i] - unc_crt[cr][j][i]) ** 2
             if min_cr is None or min_cr > cr_i_p:
                 min_cr = cr_i_p
-                min_c = j
+                min_c = j + 1
         opt_dic_val.append(min_cr)
         opt_dec.append(min_c)
     return opt_dec, opt_dic_val
@@ -233,7 +269,7 @@ def study_stability_solution(crt, prb, lam, eps, opt_pr):
         for i in range(0, cr_n):
             for j in range(0, cols):
                 for k in range(1, rows):
-                    crt_copy[i][k][j] = crt_copy[i][k][j] - eps
+                    crt_copy[i][k][j] = crt_copy[i][k][j] + random.uniform(-eps, eps)
         return crt_copy
 
     p_crt = get_perturbed_data(crt)
@@ -261,16 +297,16 @@ def study_stability_solution(crt, prb, lam, eps, opt_pr):
 calculate_model(criterion, prob, lambd)
 
 for i in range(0, 10):
-    opt_dec, opt_dic_val = study_stability_solution(criterion, prob, lambd, 0.01 * i, 'linear convolution')
+    opt_dec, opt_dic_val = study_stability_solution(criterion, prob, lambd, 0.1 * i, 'linear convolution')
     print(0.01 * i, end=' = ')
     print(opt_dec)
 print()
 for i in range(0, 10):
-    opt_dec, opt_dic_val = study_stability_solution(criterion, prob, lambd, 0.01 * i, 'multiplicative convolution')
+    opt_dec, opt_dic_val = study_stability_solution(criterion, prob, lambd, 0.1 * i, 'multiplicative convolution')
     print(0.01 * i, end=' = ')
     print(opt_dec)
 print()
 for i in range(0, 10):
-    opt_dec, opt_dic_val = study_stability_solution(criterion, prob, lambd, 0.01 * i, 'ideal point convolution')
+    opt_dec, opt_dic_val = study_stability_solution(criterion, prob, lambd, 0.1 * i, 'ideal point convolution')
     print(0.01 * i, end=' = ')
     print(opt_dec)
