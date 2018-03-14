@@ -101,10 +101,12 @@ def print_for_latex(m):
         cols = 1
     if cols > 1:
         for i in range(0, rows):
+            print('x_' + str(i + 1), end=' & ')
             for j in range(0, cols):
                 print(round(m[i][j], 2), end=' & ' if j != cols - 1 else '\hline')
             print()
     else:
+        print('x_1', end=' & ')
         for i in range(0, rows):
             print(round(m[i], 2), end=' & ' if i != rows - 1 else '\hline')
         print()
@@ -368,14 +370,14 @@ print_calc_for_latex(criterion, prob, lambd)
 for i in range(0, 10):
     opt_dec, opt_dic_val = study_stability_solution(criterion, prob, lambd, 0.3 * i, 'linear convolution')
     print(0.01 * i, end=' = ')
-    print(opt_dec)
+    print_for_latex(opt_dec)
 print()
 for i in range(0, 10):
     opt_dec, opt_dic_val = study_stability_solution(criterion, prob, lambd, 0.2 * i, 'multiplicative convolution')
     print(0.01 * i, end=' = ')
-    print(opt_dec)
+    print_for_latex(opt_dec)
 print()
 for i in range(0, 10):
     opt_dec, opt_dic_val = study_stability_solution(criterion, prob, lambd, 0.01 * i, 'ideal point convolution')
     print(0.01 * i, end=' = ')
-    print(opt_dec)
+    print_for_latex(opt_dec)
