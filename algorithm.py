@@ -378,6 +378,6 @@ for i in range(0, 10):
     print_for_latex(opt_dec)
 print()
 for i in range(0, 10):
-    opt_dec, opt_dic_val = study_stability_solution(criterion, prob, lambd, 0.01 * i, 'ideal point convolution')
-    print(0.01 * i, end=' = ')
+    opt_dec, opt_dic_val = study_stability_solution(criterion, prob, lambd, 0.1 * i, 'ideal point convolution')
+    print(0.1 * i, end=' = ')
     print_for_latex(opt_dec)
