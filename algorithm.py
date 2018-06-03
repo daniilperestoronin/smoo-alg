@@ -93,10 +93,12 @@ def print_for_latex(m):
         cols = 1
     if cols > 1:
         for i in range(0, rows):
+            print('$x_' + str(i + 1), end='$ & ')
             for j in range(0, cols):
                 print(round(m[i][j], 2), end=' & ' if j != cols - 1 else '\hline')
             print()
     else:
+        print('$x_1$', end=' & ')
         for i in range(0, rows):
             print(round(m[i], 2), end=' & ' if i != rows - 1 else '\hline')
         print()
@@ -106,7 +108,7 @@ def max_element(m):
     max_el = None
     for row in m:
         for el in row:
-            if max_el is None or el > max_el:
+            if max_el is None or math.fabs(el) > math.fabs(max_el):
                 max_el = el
     return max_el
 
