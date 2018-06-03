@@ -10,59 +10,51 @@ import random
 
 import texttable
 
-criterion = [
-    [
-        # f(x,w|1)
-        [10, 8, 8, 6, 5],
-        [7, 7, 6, 5, 2],
-        [9, 9, 9, 9, 8],
-        [6, 5, 5, 3, 2]
-    ],
-    [
-        # f(x,w|2)
-        [99.6, 99.2, 99.0, 98.9, 96.9],
-        [99.9, 99.0, 97.9, 96.9, 93.5],
-        [99.9, 99.9, 99.0, 98.9, 97.9],
-        [99.9, 99.5, 98.9, 95.4, 93.3]
-    ],
-    [
-        # f(x,w|3)
-        [98.4, 98.0, 97.3, 94.1, 91.0],
-        [97.5, 95.1, 92.5, 90.4, 88.2],
-        [98.3, 97.3, 96.0, 95.5, 94.1],
-        [95.3, 94.2, 93.5, 92.1, 91.2]
-    ],
-    [
-        # f(x,w|4)
-        [8, 8, 7, 7, 6],
-        [9, 9, 9, 8, 6],
-        [10, 10, 10, 10, 10],
-        [10, 10, 9, 8, 7]
-    ],
-    [
-        # f(x,w|5)
-        [7, 5, 5, 4, 3],
-        [7, 7, 7, 7, 6],
-        [10, 9, 8, 8, 7],
-        [9, 7, 6, 6, 6]
-    ],
-    [
-        # f(x,w|6)
-        [8, 8, 8, 8, 8],
-        [10, 10, 10, 6, 5],
-        [10, 9, 8, 6, 5],
-        [10, 9, 9, 7, 6]
-    ],
-    [
-        # f(x|7)
-        [-3500000, -3800000, -4500000, -5000000, -5700000],
-        [-4800000, -4800000, -4900000, -4950000, -5000000],
-        [-4500000, -4600000, -4700000, -5450000, -6000000],
-        [-4890000, -5010000, -5150000, -5205140, -5505140]
-    ]
+f = [
+    # f_1
+    [0.25, 11, 1, 121, 0.4],
+    # f_2
+    [12, 16, 2.5, 95, 6.4],
+    # f_3
+    [0.4, 5, 13, 10, 0.9],
+    # f_4
+    [2.25, 16, 3, 17, 0.8],
+    # f_5
+    [0.32, 32, 1, 24, 0.12],
+    # f_6
+    [0.25, 4, 1, 19, 1],
+    # f_7
+    [112, 431.3, 1122.1, 121, 132]
 ]
+
+x = [
+    # x^1
+    [10, 23, 432, 213, 12],
+    # x^2
+    [12, 13, 332, 299, 19],
+    # x^3
+    [8, 15, 465, 313, 9],
+    # x^4
+    [16, 34, 324, 315, 34],
+]
+
+w = [0.2, 0.4, 0.6, 0.8, 1]
+
 prob = [0.2, 0.2, 0.4, 0.15, 0.05]
+
 lambd = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+
+
+def get_criterion(f, x, w):
+    rows = len(f)
+    cols = len(w)
+    dep = len(x)
+    crt = [[[0 for x in range(cols)] for y in range(dep)] for z in range(rows)]
+    for i in range(0, rows):
+        for j in range(0, dep):
+            for k in range(0, cols):
+                crt[i][j][k] = sum([fi*xj for fi, xj in zip(f[i], x[j])])*w[k]
+    return crt
 
 
 def print_matrix(m, col_name='', row_name=''):
@@ -328,19 +320,18 @@ def print_calc_for_latex(crt, prb, lam):
     print()
 
 
-def study_stability_solution(crt, prb, lam, eps, opt_pr):
-    def get_perturbed_data(data):
-        crt_copy = copy.deepcopy(data)
-        cr_n = len(crt_copy)
-        rows = len(crt_copy[0])
-        cols = len(crt_copy[0][0])
-        for i in range(0, cr_n):
-            for j in range(0, cols):
-                for k in range(1, rows):
-                    crt_copy[i][k][j] = crt_copy[i][k][j] + random.uniform(-eps, eps)
-        return crt_copy
+def study_stability_solution(f, x, w, prb, lam, eps, opt_pr):
 
-    p_crt = get_perturbed_data(crt)
+    def get_perturbed_data(fp, xp, wp):
+        f_copy = copy.deepcopy(fp)
+        cr_n = len(f_copy)
+        rows = len(f_copy[0])
+        for i in range(0, cr_n):
+            for j in range(0, rows):
+                    f_copy[i][j] = f_copy[i][j] + random.uniform(-eps, eps)
+        return get_criterion(f_copy, xp, wp)
+
+    p_crt = get_perturbed_data(f, x, w)
 
     crt_norm = []
     for z in p_crt:
@@ -362,20 +353,25 @@ def study_stability_solution(crt, prb, lam, eps, opt_pr):
         return ideal_point_opt_pr(crt_unc)
 
 
-# calculate_model(criterion, prob, lambd)
-print_calc_for_latex(criterion, prob, lambd)
+cr = get_criterion(f, x, w)
+calculate_model(cr, prob, lambd)
+
+# print_calc_for_latex(cr, prob, lambd)
+
+# for i in range(0, 10):
+#     opt_dec, opt_dic_val = study_stability_solution(f, x, w, prob, lambd, 0.3 * i, 'linear convolution')
+#     print(0.01 * i, end=' = ')
+#     print(opt_dec)
+# print()
+#
+# for i in range(0, 10):
+#     opt_dec, opt_dic_val = study_stability_solution(f, x, w, prob, lambd, 0.2 * i, 'multiplicative convolution')
+#     print(0.01 * i, end=' = ')
+#     print(opt_dec)
+# print()
 
 for i in range(0, 10):
-    opt_dec, opt_dic_val = study_stability_solution(criterion, prob, lambd, 0.3 * i, 'linear convolution')
+    opt_dec, opt_dic_val = study_stability_solution(f, x, w, prob, lambd, 1 * i, 'ideal point convolution')
     print(0.01 * i, end=' = ')
     print(opt_dec)
-print()
-for i in range(0, 10):
-    opt_dec, opt_dic_val = study_stability_solution(criterion, prob, lambd, 0.2 * i, 'multiplicative convolution')
-    print(0.01 * i, end=' = ')
-    print(opt_dec)
-print()
-for i in range(0, 10):
-    opt_dec, opt_dic_val = study_stability_solution(criterion, prob, lambd, 0.01 * i, 'ideal point convolution')
-    print(0.01 * i, end=' = ')
-    print(opt_dec)
+
