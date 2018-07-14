@@ -8,6 +8,7 @@ import copy
 import math
 import random
 
+import matplotlib.pyplot as plt
 import texttable
 
 f = [
@@ -374,6 +375,10 @@ calculate_model(cr, prob, lambd)
 
 for i in range(0, 10):
     opt_dec, opt_dic_val = study_stability_solution(f, x, w, prob, lambd, 1 * i, 'ideal point convolution')
+    plt.plot(opt_dic_val)
     print(0.01 * i, end=' = ')
     print(opt_dic_val)
 
+plt.ylabel('F()')
+plt.xlabel('Lambda')
+plt.show()
