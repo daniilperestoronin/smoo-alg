@@ -375,5 +375,5 @@ calculate_model(cr, prob, lambd)
 for i in range(0, 10):
     opt_dec, opt_dic_val = study_stability_solution(f, x, w, prob, lambd, 1 * i, 'ideal point convolution')
     print(0.01 * i, end=' = ')
-    print(opt_dec)
+    print(opt_dic_val)
 
